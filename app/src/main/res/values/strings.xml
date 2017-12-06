@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">ProLab</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="proLab">ProLab - Busca por Laboratórios</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="sobre">Sobre</string>
+    <string name="outros">Outros</string>
+    <string name="mapa">Exibir Mapa</string>
+    <string name="buscar">Buscar por Exames</string>
+    <string name="buscarLaboratorio">Buscar Laboratório</string>
+    <string name="login">Login</string>
+    <string name="sair">Sair</string>
+    <string name="cadastrar">Criar Conta</string>
+    <string name="exibirEnd">Exibir no Mapa</string>
+
+    <string name="logout">Sair</string>
+    <string name="create">Cadastro</string>
+    <string name="read">Pesquisa</string>
+    <string name="update">Atualizar</string>
+    <string name="delete">Apagar</string>
+
+    <string name="cadastrar_exame">Exame</string>
+    <string name="cadastrar_laboratorio">Laboratório</string>
+    <string name="cadastrar_filial">Filial</string>
+    <string name="cadastrar_usuario_admin">Usuário Administrador</string>
+    <string name="atribuir_exameLaboratorio">Atribuir Exame a Laboratório</string>
+
+    <string name="atualizar_exame">Exame</string>
+    <string name="atualizar_laboratorio">Laboratório</string>
+    <string name="atualizar_usuario_admin">Usuário Administrador</string>
+    <string name="apagar_exame">Exame</string>
+    <string name="apagar_laboratorio">Laboratório</string>
+    <string name="apagar_filial">Filial</string>
+    <string name="apagar_usuario_admin">Usuário Administrador</string>
+    <string name="apagar_exame_laboratorio">Desvincular Exame de Laboratório</string>
+    <string name="lblExame">Exame</string>
+    <string name="lblCidade">Cidade</string>
+    <string name="preferencias">Preferencias</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="lblCadastro">Cadastro</string>
+    <string name="hintExame">Informe o nome do Exame</string>
+    <string name="btnEnviar">Enviar</string>
+    <string name="btnCancelar">Cancelar</string>
+    <string name="lblLaboratorio">Laboratorio</string>
+    <string name="hintLaboratorio">Insira o nome do Laboratório</string>
+    <string name="lblFilial">Cadastro de Filial</string>
+    <string name="lblEndereco">Selecione a Cidade:</string>
+    <string name="hintLogradouro">Logradouro</string>
+    <string name="hintNumero">Nº</string>
+    <string name="lblSelectLab">Selecione o Laboratório:</string>
+    <string name="lblSelectExame">Selecione o Exame:</string>
+
+    <string name="lblAtualizar">Atualizar</string>
+    <string name="hintAtualizarExame">Insira o nome do Exame</string>
+    <string name="lblApagar">Excluir</string>
+    <string name="pw">Informe sua Senha</string>
+    <string name="usr">Informe seu Usuario</string>
+    <string name="txtValor">Insira o valor do exame</string>
+    <string name="lblValor">Valor:</string>
+
+</resources>

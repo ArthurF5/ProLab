@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/login"
+        android:orderInCategory="100"
+        android:title="@string/login"
+        app:showAsAction="never" />
+    <item android:id="@+id/preferencias"
+        android:title="@string/preferencias"
+        android:orderInCategory="100"
+        android:visible="false"
+        app:showAsAction="never"/>
+    <item android:id="@+id/nova_conta"
+        android:title="@string/cadastrar"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/logout"
+        android:orderInCategory="100"
+        android:title="@string/logout"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/create"
+        android:title="@string/create"
+        android:visible="false">
+        <!--<menu>-->
+            <!--<item-->
+                <!--android:id="@+id/cadastrar_exame"-->
+                <!--android:title="@string/cadastrar_exame" />-->
+            <!--<item-->
+                <!--android:id="@+id/cadastrar_laboratorio"-->
+                <!--android:title="@string/cadastrar_laboratorio" />-->
+            <!--<item-->
+                <!--android:id="@+id/cadastrar_filial"-->
+                <!--android:title="@string/cadastrar_filial" />-->
+            <!--<item-->
+                <!--android:id="@+id/atribuir_exameLaboratorio"-->
+                <!--android:title="@string/atribuir_exameLaboratorio" />-->
+            <!--<item-->
+                <!--android:id="@+id/cadastrar_usuario_admin"-->
+                <!--android:title="@string/cadastrar_usuario_admin" />-->
+        <!--</menu>-->
+    </item>
+    <item
+        android:id="@+id/update"
+        android:title="@string/update"
+        android:visible="false">
+        <!--<menu>-->
+            <!--<item-->
+                <!--android:id="@+id/atualizar_exame"-->
+                <!--android:title="@string/atualizar_exame" />-->
+            <!--<item-->
+                <!--android:id="@+id/atualizar_laboratorio"-->
+                <!--android:title="@string/atualizar_laboratorio" />-->
+            <!--<item-->
+                <!--android:id="@+id/atualizar_usuario_admin"-->
+                <!--android:title="@string/atualizar_usuario_admin" />-->
+        <!--</menu>-->
+    </item>
+    <item
+        android:id="@+id/delete"
+        android:title="@string/delete"
+        android:visible="false">
+        <!--<menu>-->
+            <!--<item-->
+                <!--android:id="@+id/apagar_exame"-->
+                <!--android:title="@string/apagar_exame" />-->
+            <!--<item-->
+                <!--android:id="@+id/apagar_laboratorio"-->
+                <!--android:title="@string/apagar_laboratorio" />-->
+            <!--<item-->
+                <!--android:id="@+id/apagar_filial"-->
+                <!--android:title="@string/apagar_filial" />-->
+            <!--<item-->
+                <!--android:id="@+id/apagar_usuario_admin"-->
+                <!--android:title="@string/apagar_usuario_admin" />-->
+            <!--<item-->
+                <!--android:id="@+id/apagar_exame_laboratorio"-->
+                <!--android:title="@string/apagar_exame_laboratorio" />-->
+        <!--</menu>-->
+    </item>
+</menu>
