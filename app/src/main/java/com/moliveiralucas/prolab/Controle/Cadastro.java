@@ -182,7 +182,9 @@ public class Cadastro extends Fragment {
 
         @Override
         protected void onPostExecute(String s) {
-            super.onPostExecute(s);
+            if(json != null){
+                Toast.makeText(getActivity(),json, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
