@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,10 +49,11 @@ public class Cadastro extends Fragment {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, tipoCadastro);
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinnerTipoCadastro.setAdapter(adapter);
-        cadastro = (Integer) spinnerTipoCadastro.getSelectedItemPosition();
+
         spinnerTipoCadastro.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                cadastro = (Integer) spinnerTipoCadastro.getSelectedItemPosition();
                 LinearLayout cadExame = v.findViewById(R.id.groupCadastroExame);
                 LinearLayout cadLab = v.findViewById(R.id.groupCadastroLaboratorio);
                 LinearLayout cadFilial = v.findViewById(R.id.groupCadastroFilial);
@@ -76,12 +78,14 @@ public class Cadastro extends Fragment {
                         cadExLab.setVisibility(View.GONE);
                         break;
                     case 3:
+                        //Carregar Spinner de LABORATORIOS / CIDADE / ESTADO
                         cadExame.setVisibility(View.GONE);
                         cadLab.setVisibility(View.GONE);
                         cadFilial.setVisibility(View.VISIBLE);
                         cadExLab.setVisibility(View.GONE);
                         break;
                     case 4:
+                        //Carregar Spinner de LABORATORIOS / EXAME
                         cadExame.setVisibility(View.GONE);
                         cadLab.setVisibility(View.GONE);
                         cadFilial.setVisibility(View.GONE);
@@ -114,7 +118,7 @@ public class Cadastro extends Fragment {
                             if (txtExame.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe o nome do Exame", Toast.LENGTH_SHORT).show();
                             } else {
-                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadExame/"+txtExame.getText().toString();
+                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadExame/" + txtExame.getText().toString();
                                 new AsyncWS().execute();
                             }
                             break;
@@ -123,7 +127,7 @@ public class Cadastro extends Fragment {
                             if (txtLaboratorio.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe o nome do Laboratório", Toast.LENGTH_SHORT).show();
                             } else {
-                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadLabor/"+txtLaboratorio.getText().toString();
+                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadLabor/" + txtLaboratorio.getText().toString();
                                 new AsyncWS().execute();
                             }
                             break;
@@ -133,27 +137,26 @@ public class Cadastro extends Fragment {
                             Spinner spinnerCidade = getActivity().findViewById(R.id.spinnerCidade);
                             EditText txtLogradouro = getActivity().findViewById(R.id.txtLogradouro);
                             EditText txtNumero = getActivity().findViewById(R.id.txtNumero);
-                            if (spinnerLaboratorio.getSelectedItemPosition() > 0 &&
-                                    spinnerUF.getSelectedItemPosition() > 0 &&
-                                    spinnerCidade.getSelectedItemPosition() > 0 &&
+                            if (spinnerLaboratorio.getSelectedItemPosition() == 0 &&
+                                    spinnerUF.getSelectedItemPosition() == 0 &&
+                                    spinnerCidade.getSelectedItemPosition() == 0 &&
                                     txtLogradouro.getText().toString().equals("") &&
                                     txtNumero.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe todos os campos", Toast.LENGTH_SHORT).show();
                             } else {
                                 //Verificar dados para entrar no WS_URL
-                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadFilial/"+spinnerLaboratorio.getSelectedItem()+"_"+txtLogradouro.getText().toString()+"_"+txtNumero.getText().toString()+"_"+spinnerCidade.getSelectedItem()+"_"+spinnerUF.getSelectedItem();
+                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadFilial/" + spinnerLaboratorio.getSelectedItem() + "_" + txtLogradouro.getText().toString() + "_" + txtNumero.getText().toString() + "_" + spinnerCidade.getSelectedItem() + "_" + spinnerUF.getSelectedItem();
                                 new AsyncWS().execute();
                             }
                             break;
                         case 4:
-
                             Spinner spinnerSelectLab = getActivity().findViewById(R.id.spinnerSelectLab);
                             Spinner spinnerSelectExame = getActivity().findViewById(R.id.spinnerSelectExame);
                             EditText txtValor = getActivity().findViewById(R.id.txtValor);
                             if (spinnerSelectLab.getSelectedItemPosition() > 0 && spinnerSelectExame.getSelectedItemPosition() > 0 && txtValor.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe todos os campos", Toast.LENGTH_SHORT).show();
                             } else {
-                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/"+spinnerSelectLab.getSelectedItem()+"_"+spinnerSelectExame.getSelectedItem()+"_"+txtValor.getText().toString();
+                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/" + spinnerSelectLab.getSelectedItem() + "_" + spinnerSelectExame.getSelectedItem() + "_" + txtValor.getText().toString();
                                 new AsyncWS().execute();
                             }
                             break;
@@ -182,10 +185,38 @@ public class Cadastro extends Fragment {
 
         @Override
         protected void onPostExecute(String s) {
-            if(json != null){
-                Toast.makeText(getActivity(),json, Toast.LENGTH_SHORT).show();
+            if (json != null) {
+                Integer retorno = Integer.parseInt(json);
+                switch (retorno) {
+                    case 1:
+                        Toast.makeText(getActivity(), "Sem Permissão", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 2:
+                        Toast.makeText(getActivity(), "Operação realizada com Sucesso", Toast.LENGTH_SHORT).show();
+                        showFragment(new Empety(), "Empety");
+                        break;
+                    case 3:
+                        Toast.makeText(getActivity(), "Objeto Nulo", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 4:
+                        Toast.makeText(getActivity(), "Já possui Cadastro", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 5:
+                        Toast.makeText(getActivity(), "Houve algum erro ao realizar a operação verificar log", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 6:
+                        Toast.makeText(getActivity(), "Usuário ou senha inválidos", Toast.LENGTH_SHORT).show();
+                        break;
+                }
             }
         }
+    }
+
+    private void showFragment(Fragment fragment, String name) {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.idContainer, fragment, name);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
