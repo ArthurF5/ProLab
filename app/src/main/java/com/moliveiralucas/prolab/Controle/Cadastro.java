@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -116,6 +115,7 @@ public class Cadastro extends Fragment {
                                 Toast.makeText(getActivity(), "Informe o nome do Exame", Toast.LENGTH_SHORT).show();
                             } else {
                                 WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadExame/"+txtExame.getText().toString();
+                                new AsyncWS().execute();
                             }
                             break;
                         case 2:
@@ -124,6 +124,7 @@ public class Cadastro extends Fragment {
                                 Toast.makeText(getActivity(), "Informe o nome do Laboratório", Toast.LENGTH_SHORT).show();
                             } else {
                                 WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadLabor/"+txtLaboratorio.getText().toString();
+                                new AsyncWS().execute();
                             }
                             break;
                         case 3:
@@ -141,6 +142,7 @@ public class Cadastro extends Fragment {
                             } else {
                                 //Verificar dados para entrar no WS_URL
                                 WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadFilial/"+spinnerLaboratorio.getSelectedItem()+"_"+txtLogradouro.getText().toString()+"_"+txtNumero.getText().toString()+"_"+spinnerCidade.getSelectedItem()+"_"+spinnerUF.getSelectedItem();
+                                new AsyncWS().execute();
                             }
                             break;
                         case 4:
@@ -152,6 +154,7 @@ public class Cadastro extends Fragment {
                                 Toast.makeText(getActivity(), "Informe todos os campos", Toast.LENGTH_SHORT).show();
                             } else {
                                 WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/"+spinnerSelectLab.getSelectedItem()+"_"+spinnerSelectExame.getSelectedItem()+"_"+txtValor.getText().toString();
+                                new AsyncWS().execute();
                             }
                             break;
                     }
