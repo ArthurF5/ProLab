@@ -17,13 +17,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.moliveiralucas.prolab.R;
 import com.moliveiralucas.prolab.model.Cidade;
 import com.moliveiralucas.prolab.model.Estado;
+import com.moliveiralucas.prolab.model.Exame;
 import com.moliveiralucas.prolab.model.Laboratorio;
 
 import org.json.JSONArray;
@@ -40,15 +40,16 @@ public class Cadastro extends Fragment {
     private String WS_URL = "";
     private String json;
     private Integer cadastro;
-    private Integer operacao;
-
-
-
     /*
     Operações
         0: Saida
         1: Load Laboratorio
+        2: Load Uf
+        3: Load Cidade
+        4: Load Select Laboratorio
+        5: Load Select Exame
      */
+    private Integer operacao;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,8 +99,7 @@ public class Cadastro extends Fragment {
                         break;
                     case 4:
                         //Carregar Spinner de LABORATORIOS / EXAME
-//                        loadLaboratorio();
-//                        loadExame();
+                        loadSelectLaboratorio();
                         cadExame.setVisibility(View.GONE);
                         cadLab.setVisibility(View.GONE);
                         cadFilial.setVisibility(View.GONE);
@@ -139,7 +139,14 @@ public class Cadastro extends Fragment {
         new AsyncWS().execute();
     }
 
-    public void loadExame() {
+    public void loadSelectLaboratorio() {
+        operacao = 4;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs/";
+        new AsyncWS().execute();
+    }
+
+    public void loadSelectExame() {
+        operacao = 5;
         WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllExames/";
         new AsyncWS().execute();
     }
@@ -184,9 +191,11 @@ public class Cadastro extends Fragment {
                                 Toast.makeText(getActivity(), "Informe todos os campos", Toast.LENGTH_SHORT).show();
                             } else {
                                 //Verificar dados para entrar no WS_URL
-//                                Estado uf = (Estado) spinnerUF.getSelectedItem();
+                                Estado uf = (Estado) spinnerUF.getSelectedItem();
+                                Cidade cidade = (Cidade) spinnerCidade.getSelectedItem();
+                                Laboratorio lab = (Laboratorio) spinnerLaboratorio.getSelectedItem();
                                 operacao = 0;
-//                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadFilial/" + spinnerLaboratorio.getSelectedItem() + "_" + txtLogradouro.getText().toString() + "_" + txtNumero.getText().toString() + "_" + spinnerCidade.getSelectedItem() + "_" + spinnerUF.getSelectedItem();
+                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadFilial/" + lab.getLabID() + "_" + txtLogradouro.getText().toString() + "_" + txtNumero.getText().toString() + "_" + cidade.getCidadeID() + "_" + uf.getUfID();
 //                                new AsyncWS().execute();
                             }
                             break;
@@ -197,8 +206,10 @@ public class Cadastro extends Fragment {
                             if (spinnerSelectLab.getSelectedItemPosition() > 0 && spinnerSelectExame.getSelectedItemPosition() > 0 && txtValor.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe todos os campos", Toast.LENGTH_SHORT).show();
                             } else {
-//                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/" + spinnerSelectLab.getSelectedItem() + "_" + spinnerSelectExame.getSelectedItem() + "_" + txtValor.getText().toString();
-//                                operacao = 0;
+                                Laboratorio lab = (Laboratorio) spinnerSelectLab.getSelectedItem();
+                                Exame exame = (Exame) spinnerSelectExame.getSelectedItem();
+                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/" + lab.getLabID() + "_" + exame.getExameID() + "_" + txtValor.getText().toString();
+                                operacao = 0;
 //                                new AsyncWS().execute();
                             }
                             break;
@@ -228,7 +239,7 @@ public class Cadastro extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             switch (operacao) {
-                case 0:
+                case 0: //Saida
                     if (json != null) {
                         Integer retorno = Integer.parseInt(json);
                         switch (retorno) {
@@ -254,7 +265,7 @@ public class Cadastro extends Fragment {
                         }
                     }
                     break;
-                case 1:
+                case 1: //Load Laboratorio
                     ArrayList<Laboratorio> mArrayLaboratorio = new ArrayList<Laboratorio>();
                     Laboratorio lab = new Laboratorio();
                     lab.setLaboratorio("Selecione um laboratorio");
@@ -301,7 +312,7 @@ public class Cadastro extends Fragment {
                         Log.v("JSONArray ERROR: ", e.getMessage());
                     }
                     break;
-                case 2:
+                case 2: //Load UF (Estado)
                     ArrayList<Estado> mArrayUF = new ArrayList<Estado>();
                     Estado uf = new Estado();
                     uf.setUf("Selecione o Estado");
@@ -346,7 +357,7 @@ public class Cadastro extends Fragment {
                         Log.v("JSONArray ERROR: ", e.getMessage());
                     }
                     break;
-                case 3:
+                case 3: //Load Cidade
                     ArrayList<Cidade> mArrayCidade = new ArrayList<Cidade>();
                     Cidade cidade = new Cidade();
                     cidade.setCidade("Selecione a Cidade");
@@ -368,7 +379,66 @@ public class Cadastro extends Fragment {
                         Log.v("JSONArray ERROR: ", e.getMessage());
                     }
                     break;
-                case 4:
+                case 4: //Load Select Laboratorio
+                    ArrayList<Laboratorio> mArraySelectLaboratorio = new ArrayList<Laboratorio>();
+                    Laboratorio mSelectLab = new Laboratorio();
+                    mSelectLab.setLaboratorio("Selecione o Laboratório");
+                    mArraySelectLaboratorio.add(mSelectLab);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            mSelectLab = new Laboratorio();
+                            mSelectLab.setLaboratorio(jsonArray.getJSONObject(i).getString("laboratorio"));
+                            mSelectLab.setLabID(jsonArray.getJSONObject(i).getInt("labID"));
+                            mArraySelectLaboratorio.add(mSelectLab);
+                        }
+                        final Spinner spinnerLaboratorio = getActivity().findViewById(R.id.spinnerSelectLab);
+                        ArrayAdapter<Laboratorio> mAdapter = new ArrayAdapter<Laboratorio>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArraySelectLaboratorio);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerLaboratorio.setAdapter(mAdapter);
+                        spinnerLaboratorio.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                if (spinnerLaboratorio.getSelectedItemPosition() > 0) {
+                                    loadSelectExame();
+                                } else {
+                                    String vazia[] = {""};
+                                    ArrayAdapter<String> adapterClear = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, vazia);
+                                    Spinner spinnerExame = getActivity().findViewById(R.id.spinnerSelectExame);
+                                    spinnerExame.setAdapter(adapterClear);
+                                    spinnerExame.setEnabled(false);
+                                }
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView) {
+
+                            }
+                        });
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
+                    break;
+                case 5: //Load Select Exame
+                    ArrayList<Exame> mArraySelectExame = new ArrayList<Exame>();
+                    Exame mExame = new Exame();
+                    mExame.setExame("Selecione um Exame");
+                    mArraySelectExame.add(mExame);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            mExame = new Exame();
+                            mExame.setExame(jsonArray.getJSONObject(i).getString("exame"));
+                            mExame.setExameID(jsonArray.getJSONObject(i).getInt("exameID"));
+                            mArraySelectExame.add(mExame);
+                        }
+                        Spinner spinnerExame = getActivity().findViewById(R.id.spinnerSelectExame);
+                        ArrayAdapter<Exame> mAdapter = new ArrayAdapter<Exame>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArraySelectExame);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerExame.setAdapter(mAdapter);
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
                     break;
                 default:
                     Toast.makeText(getActivity(), "Operação Inválida", Toast.LENGTH_SHORT).show();
