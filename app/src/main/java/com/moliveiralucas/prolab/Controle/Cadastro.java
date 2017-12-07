@@ -196,7 +196,7 @@ public class Cadastro extends Fragment {
                                 Laboratorio lab = (Laboratorio) spinnerLaboratorio.getSelectedItem();
                                 operacao = 0;
                                 WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadFilial/" + lab.getLabID() + "_" + txtLogradouro.getText().toString() + "_" + txtNumero.getText().toString() + "_" + cidade.getCidadeID() + "_" + uf.getUfID();
-//                                new AsyncWS().execute();
+                                new AsyncWS().execute();
                             }
                             break;
                         case 4:
@@ -210,7 +210,7 @@ public class Cadastro extends Fragment {
                                 Exame exame = (Exame) spinnerSelectExame.getSelectedItem();
                                 WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/" + lab.getLabID() + "_" + exame.getExameID() + "_" + txtValor.getText().toString();
                                 operacao = 0;
-//                                new AsyncWS().execute();
+                                new AsyncWS().execute();
                             }
                             break;
                     }
