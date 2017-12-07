@@ -17,35 +17,45 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.moliveiralucas.prolab.R;
+import com.moliveiralucas.prolab.model.Cidade;
+import com.moliveiralucas.prolab.model.Estado;
+import com.moliveiralucas.prolab.model.Laboratorio;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class Cadastro extends Fragment {
     private String[] tipoCadastro = {"Selecione um tipo de Cadastro", "Exame", "Laboratório", "Filial", "Atribuir Exame a Laboratório"};
     private String WS_URL = "";
     private String json;
-    private String loadJsonSpinner;
     private Integer cadastro;
+    private Integer operacao;
 
-    public Cadastro() {
-        // Required empty public constructor
-    }
 
+
+    /*
+    Operações
+        0: Saida
+        1: Load Laboratorio
+     */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.cadastro, container, false);
         final Spinner spinnerTipoCadastro = v.findViewById(R.id.spinnerTipoCadastro);
+
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, tipoCadastro);
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
@@ -81,8 +91,6 @@ public class Cadastro extends Fragment {
                     case 3:
                         //Carregar Spinner de LABORATORIOS / CIDADE / ESTADO
                         loadLaboratorio();
-                        loadEstado();
-                        loadCidade();
                         cadExame.setVisibility(View.GONE);
                         cadLab.setVisibility(View.GONE);
                         cadFilial.setVisibility(View.VISIBLE);
@@ -90,8 +98,8 @@ public class Cadastro extends Fragment {
                         break;
                     case 4:
                         //Carregar Spinner de LABORATORIOS / EXAME
-                        loadLaboratorio();
-                        loadExame();
+//                        loadLaboratorio();
+//                        loadExame();
                         cadExame.setVisibility(View.GONE);
                         cadLab.setVisibility(View.GONE);
                         cadFilial.setVisibility(View.GONE);
@@ -114,19 +122,26 @@ public class Cadastro extends Fragment {
     }
 
     public void loadLaboratorio() {
-        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs";
+        operacao = 1;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs/";
+        new AsyncWS().execute();
     }
 
     public void loadEstado() {
-        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllUF";
+        operacao = 2;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllUF/";
+        new AsyncWS().execute();
     }
 
-    public void loadCidade() {
-        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchCidadePorEstado/";
+    public void loadCidade(Integer id) {
+        operacao = 3;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchCidadePorEstado/" + id;
+        new AsyncWS().execute();
     }
 
     public void loadExame() {
-        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllExames";
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllExames/";
+        new AsyncWS().execute();
     }
 
     public View.OnClickListener enviar() {
@@ -140,6 +155,7 @@ public class Cadastro extends Fragment {
                             if (txtExame.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe o nome do Exame", Toast.LENGTH_SHORT).show();
                             } else {
+                                operacao = 0;
                                 WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadExame/" + txtExame.getText().toString();
                                 new AsyncWS().execute();
                             }
@@ -149,6 +165,7 @@ public class Cadastro extends Fragment {
                             if (txtLaboratorio.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe o nome do Laboratório", Toast.LENGTH_SHORT).show();
                             } else {
+                                operacao = 0;
                                 WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadLabor/" + txtLaboratorio.getText().toString();
                                 new AsyncWS().execute();
                             }
@@ -167,8 +184,10 @@ public class Cadastro extends Fragment {
                                 Toast.makeText(getActivity(), "Informe todos os campos", Toast.LENGTH_SHORT).show();
                             } else {
                                 //Verificar dados para entrar no WS_URL
-                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadFilial/" + spinnerLaboratorio.getSelectedItem() + "_" + txtLogradouro.getText().toString() + "_" + txtNumero.getText().toString() + "_" + spinnerCidade.getSelectedItem() + "_" + spinnerUF.getSelectedItem();
-                                new AsyncWS().execute();
+//                                Estado uf = (Estado) spinnerUF.getSelectedItem();
+                                operacao = 0;
+//                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadFilial/" + spinnerLaboratorio.getSelectedItem() + "_" + txtLogradouro.getText().toString() + "_" + txtNumero.getText().toString() + "_" + spinnerCidade.getSelectedItem() + "_" + spinnerUF.getSelectedItem();
+//                                new AsyncWS().execute();
                             }
                             break;
                         case 4:
@@ -178,8 +197,9 @@ public class Cadastro extends Fragment {
                             if (spinnerSelectLab.getSelectedItemPosition() > 0 && spinnerSelectExame.getSelectedItemPosition() > 0 && txtValor.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe todos os campos", Toast.LENGTH_SHORT).show();
                             } else {
-                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/" + spinnerSelectLab.getSelectedItem() + "_" + spinnerSelectExame.getSelectedItem() + "_" + txtValor.getText().toString();
-                                new AsyncWS().execute();
+//                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/" + spinnerSelectLab.getSelectedItem() + "_" + spinnerSelectExame.getSelectedItem() + "_" + txtValor.getText().toString();
+//                                operacao = 0;
+//                                new AsyncWS().execute();
                             }
                             break;
                     }
@@ -207,51 +227,153 @@ public class Cadastro extends Fragment {
 
         @Override
         protected void onPostExecute(String s) {
-            if (json != null) {
-                Integer retorno = Integer.parseInt(json);
-                switch (retorno) {
-                    case 1:
-                        Toast.makeText(getActivity(), "Sem Permissão", Toast.LENGTH_SHORT).show();
-                        break;
-                    case 2:
-                        Toast.makeText(getActivity(), "Operação realizada com Sucesso", Toast.LENGTH_SHORT).show();
-                        showFragment(new Empety(), "Empety");
-                        break;
-                    case 3:
-                        Toast.makeText(getActivity(), "Objeto Nulo", Toast.LENGTH_SHORT).show();
-                        break;
-                    case 4:
-                        Toast.makeText(getActivity(), "Já possui Cadastro", Toast.LENGTH_SHORT).show();
-                        break;
-                    case 5:
-                        Toast.makeText(getActivity(), "Houve algum erro ao realizar a operação verificar log", Toast.LENGTH_SHORT).show();
-                        break;
-                    case 6:
-                        Toast.makeText(getActivity(), "Usuário ou senha inválidos", Toast.LENGTH_SHORT).show();
-                        break;
-                }
+            switch (operacao) {
+                case 0:
+                    if (json != null) {
+                        Integer retorno = Integer.parseInt(json);
+                        switch (retorno) {
+                            case 1:
+                                Toast.makeText(getActivity(), "Sem Permissão", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 2:
+                                Toast.makeText(getActivity(), "Operação realizada com Sucesso", Toast.LENGTH_SHORT).show();
+                                showFragment(new Empety(), "Empety");
+                                break;
+                            case 3:
+                                Toast.makeText(getActivity(), "Objeto Nulo", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 4:
+                                Toast.makeText(getActivity(), "Já possui Cadastro", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 5:
+                                Toast.makeText(getActivity(), "Houve algum erro ao realizar a operação verificar log", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 6:
+                                Toast.makeText(getActivity(), "Usuário ou senha inválidos", Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                    break;
+                case 1:
+                    ArrayList<Laboratorio> mArrayLaboratorio = new ArrayList<Laboratorio>();
+                    Laboratorio lab = new Laboratorio();
+                    lab.setLaboratorio("Selecione um laboratorio");
+                    mArrayLaboratorio.add(lab);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            lab = new Laboratorio();
+                            lab.setLaboratorio(jsonArray.getJSONObject(i).getString("laboratorio"));
+                            lab.setLabID(jsonArray.getJSONObject(i).getInt("labID"));
+                            mArrayLaboratorio.add(lab);
+                        }
+                        final Spinner spinnerLaboratorio = getActivity().findViewById(R.id.spinnerLaboratorio);
+                        final ArrayAdapter<Laboratorio> mAdapter = new ArrayAdapter<Laboratorio>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArrayLaboratorio);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                        spinnerLaboratorio.setAdapter(mAdapter);
+                        spinnerLaboratorio.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                if (spinnerLaboratorio.getSelectedItemPosition() > 0) {
+                                    Spinner spinnerUF = getActivity().findViewById(R.id.spinnerUF);
+                                    spinnerUF.setEnabled(true);
+                                    loadEstado();
+                                } else {
+                                    String vazia[] = {""};
+                                    ArrayAdapter<String> adapterClear = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, vazia);
+                                    Spinner spinnerUF = getActivity().findViewById(R.id.spinnerUF);
+                                    spinnerUF.setAdapter(adapterClear);
+                                    spinnerUF.setEnabled(false);
+                                    Spinner spinnerCidade = getActivity().findViewById(R.id.spinnerCidade);
+                                    spinnerCidade.setAdapter(adapterClear);
+                                    spinnerCidade.setEnabled(false);
+                                }
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView) {
+
+                            }
+                        });
+
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
+                    break;
+                case 2:
+                    ArrayList<Estado> mArrayUF = new ArrayList<Estado>();
+                    Estado uf = new Estado();
+                    uf.setUf("Selecione o Estado");
+                    mArrayUF.add(uf);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            uf = new Estado();
+                            uf.setUf(jsonArray.getJSONObject(i).getString("uf"));
+                            uf.setUfID(jsonArray.getJSONObject(i).getInt("ufID"));
+                            mArrayUF.add(uf);
+                        }
+                        final Spinner spinnerUF = getActivity().findViewById(R.id.spinnerUF);
+                        ArrayAdapter<Estado> mAdapter = new ArrayAdapter<Estado>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArrayUF);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerUF.setAdapter(mAdapter);
+                        spinnerUF.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                if (spinnerUF.getSelectedItemPosition() > 0) {
+                                    Spinner spinnerCidade = getActivity().findViewById(R.id.spinnerCidade);
+                                    spinnerCidade.setEnabled(true);
+
+                                    Estado uf = (Estado) adapterView.getItemAtPosition(i);
+                                    loadCidade(uf.getUfID());
+                                } else {
+                                    String vazia[] = {""};
+                                    ArrayAdapter<String> adapterClear = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, vazia);
+                                    Spinner spinnerCidade = getActivity().findViewById(R.id.spinnerCidade);
+                                    spinnerCidade.setAdapter(adapterClear);
+                                    spinnerCidade.setEnabled(false);
+                                }
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView) {
+
+                            }
+                        });
+
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
+                    break;
+                case 3:
+                    ArrayList<Cidade> mArrayCidade = new ArrayList<Cidade>();
+                    Cidade cidade = new Cidade();
+                    cidade.setCidade("Selecione a Cidade");
+                    mArrayCidade.add(cidade);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            cidade = new Cidade();
+                            cidade.setCidade(jsonArray.getJSONObject(i).getString("cidade"));
+                            cidade.setCidadeID(jsonArray.getJSONObject(i).getInt("cidadeID"));
+                            mArrayCidade.add(cidade);
+                        }
+                        Spinner spinnerCidade = getActivity().findViewById(R.id.spinnerCidade);
+                        ArrayAdapter<Cidade> mAdapter = new ArrayAdapter<Cidade>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArrayCidade);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerCidade.setAdapter(mAdapter);
+
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
+                    break;
+                case 4:
+                    break;
+                default:
+                    Toast.makeText(getActivity(), "Operação Inválida", Toast.LENGTH_SHORT).show();
+                    break;
             }
-        }
-    }
-
-    private class AsyncWSSpinner extends AsyncTask<Void, Void, String> {
-
-        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-        @Override
-        protected String doInBackground(Void... voids) {
-            try {
-                loadJsonSpinner = getJSONObjectFromURL(WS_URL);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return loadJsonSpinner;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-
         }
     }
 

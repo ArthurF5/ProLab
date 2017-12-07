@@ -25,4 +25,9 @@ public class Laboratorio {
 	public void setEndereco(ArrayList<Endereco> endereco) {
 		this.endereco = endereco;
 	}
+
+	@Override
+	public String toString() {
+		return laboratorio;
+	}
 }
