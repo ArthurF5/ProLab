@@ -80,7 +80,7 @@ public class Cadastro extends Fragment {
                         break;
                     case 3:
                         //Carregar Spinner de LABORATORIOS / CIDADE / ESTADO
-loadLaboratorio();
+                        loadLaboratorio();
                         loadEstado();
                         loadCidade();
                         cadExame.setVisibility(View.GONE);
@@ -90,7 +90,7 @@ loadLaboratorio();
                         break;
                     case 4:
                         //Carregar Spinner de LABORATORIOS / EXAME
-loadLaboratorio();
+                        loadLaboratorio();
                         loadExame();
                         cadExame.setVisibility(View.GONE);
                         cadLab.setVisibility(View.GONE);
@@ -113,19 +113,19 @@ loadLaboratorio();
         return v;
     }
 
-    public void loadLaboratorio(){
+    public void loadLaboratorio() {
         WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs";
     }
 
-    public void loadEstado(){
+    public void loadEstado() {
         WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllUF";
     }
 
-    public void loadCidade(){
+    public void loadCidade() {
         WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchCidadePorEstado/";
     }
 
-    public void loadExame(){
+    public void loadExame() {
         WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllExames";
     }
 
