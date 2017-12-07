@@ -19,7 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.moliveiralucas.prolab.R;
 import com.moliveiralucas.prolab.model.Cidade;
 import com.moliveiralucas.prolab.model.Estado;
@@ -203,12 +202,13 @@ public class Cadastro extends Fragment {
                             Spinner spinnerSelectLab = getActivity().findViewById(R.id.spinnerSelectLab);
                             Spinner spinnerSelectExame = getActivity().findViewById(R.id.spinnerSelectExame);
                             EditText txtValor = getActivity().findViewById(R.id.txtValor);
-                            if (spinnerSelectLab.getSelectedItemPosition() > 0 && spinnerSelectExame.getSelectedItemPosition() > 0 && txtValor.getText().toString().equals("")) {
+                            if (spinnerSelectLab.getSelectedItemPosition() == 0 && spinnerSelectExame.getSelectedItemPosition() == 0 && txtValor.getText().toString().equals("")) {
                                 Toast.makeText(getActivity(), "Informe todos os campos", Toast.LENGTH_SHORT).show();
                             } else {
                                 Laboratorio lab = (Laboratorio) spinnerSelectLab.getSelectedItem();
                                 Exame exame = (Exame) spinnerSelectExame.getSelectedItem();
-                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/atrExameLaboratorio/" + lab.getLabID() + "_" + exame.getExameID() + "_" + txtValor.getText().toString();
+                                exame.setValor(Double.parseDouble(txtValor.getText().toString()));
+                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/cadExameLab/" + lab.getLabID() + "_" + exame.getExameID() + "_" + exame.getValor();
                                 operacao = 0;
                                 new AsyncWS().execute();
                             }
@@ -399,12 +399,13 @@ public class Cadastro extends Fragment {
                         spinnerLaboratorio.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                             @Override
                             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                Spinner spinnerExame = getActivity().findViewById(R.id.spinnerSelectExame);
                                 if (spinnerLaboratorio.getSelectedItemPosition() > 0) {
+                                    spinnerExame.setEnabled(true);
                                     loadSelectExame();
                                 } else {
                                     String vazia[] = {""};
                                     ArrayAdapter<String> adapterClear = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, vazia);
-                                    Spinner spinnerExame = getActivity().findViewById(R.id.spinnerSelectExame);
                                     spinnerExame.setAdapter(adapterClear);
                                     spinnerExame.setEnabled(false);
                                 }
@@ -465,9 +466,5 @@ public class Cadastro extends Fragment {
             Log.v("JSON: ", newjson);
             return newjson;
         }
-    }
-
-    private <T extends Object> T getTranslation(String json, Class<T> cl) {
-        return new Gson().fromJson(json, cl);
     }
 }
