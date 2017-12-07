@@ -33,6 +33,7 @@ public class Cadastro extends Fragment {
     private String[] tipoCadastro = {"Selecione um tipo de Cadastro", "Exame", "Laboratório", "Filial", "Atribuir Exame a Laboratório"};
     private String WS_URL = "";
     private String json;
+    private String loadJsonSpinner;
     private Integer cadastro;
 
     public Cadastro() {
@@ -79,6 +80,9 @@ public class Cadastro extends Fragment {
                         break;
                     case 3:
                         //Carregar Spinner de LABORATORIOS / CIDADE / ESTADO
+loadLaboratorio();
+                        loadEstado();
+                        loadCidade();
                         cadExame.setVisibility(View.GONE);
                         cadLab.setVisibility(View.GONE);
                         cadFilial.setVisibility(View.VISIBLE);
@@ -86,6 +90,8 @@ public class Cadastro extends Fragment {
                         break;
                     case 4:
                         //Carregar Spinner de LABORATORIOS / EXAME
+loadLaboratorio();
+                        loadExame();
                         cadExame.setVisibility(View.GONE);
                         cadLab.setVisibility(View.GONE);
                         cadFilial.setVisibility(View.GONE);
@@ -105,6 +111,22 @@ public class Cadastro extends Fragment {
         Button btnCancelar = v.findViewById(R.id.btnCancelar);
 
         return v;
+    }
+
+    public void loadLaboratorio(){
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs";
+    }
+
+    public void loadEstado(){
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllUF";
+    }
+
+    public void loadCidade(){
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchCidadePorEstado/";
+    }
+
+    public void loadExame(){
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllExames";
     }
 
     public View.OnClickListener enviar() {
@@ -209,6 +231,27 @@ public class Cadastro extends Fragment {
                         break;
                 }
             }
+        }
+    }
+
+    private class AsyncWSSpinner extends AsyncTask<Void, Void, String> {
+
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                loadJsonSpinner = getJSONObjectFromURL(WS_URL);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return loadJsonSpinner;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
         }
     }
 
