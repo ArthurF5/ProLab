@@ -116,8 +116,17 @@ public class Cadastro extends Fragment {
         Button btnEnviar = v.findViewById(R.id.btnEnviar);
         btnEnviar.setOnClickListener(enviar());
         Button btnCancelar = v.findViewById(R.id.btnCancelar);
-
+        btnCancelar.setOnClickListener(cancelar());
         return v;
+    }
+
+    public View.OnClickListener cancelar() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showFragment(new Empety(), "Empety");
+            }
+        };
     }
 
     public void loadLaboratorio() {
