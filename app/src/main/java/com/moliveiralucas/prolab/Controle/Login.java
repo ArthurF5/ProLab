@@ -119,7 +119,7 @@ public class Login extends Fragment {
                 Usuario usr = (Usuario) getTranslation(json, Usuario.class);
                 if(!usr.getUsuario().equals("")) {
                     listener.efetuarLogin(usr);
-                    showFragment(new Cadastro(), "Cadastro");
+                    showFragment(new Empety(), "Empety");
                 }else{
                     Toast.makeText(getActivity(), "Login ou senha incorretos, tente novamente!", Toast.LENGTH_SHORT).show();
                 }

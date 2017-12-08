@@ -95,7 +95,7 @@ public class Atualizar extends Fragment {
                         if (txtExame.getText().toString().equals("")) {
                             Toast.makeText(getActivity(), "Informe o Exame", Toast.LENGTH_SHORT).show();
                         } else {
-                            WS_URL = "http://10.42.0.1:8080" + txtExame.getText().toString() + "_" + txtExameID.getText().toString();
+                            WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/attExame/" + txtExame.getText().toString() + "_" + txtExameID.getText().toString();
                             operacao = 0;
                             new AsyncWS().execute();
                         }
