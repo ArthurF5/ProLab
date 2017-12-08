@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#670A0A</item>
         <item name="colorPrimaryDark">#670A0A</item>
-        <item name="colorAccent">#F8F2E5</item>
+        <item name="colorAccent">#670A0A</item>
         <item name="android:actionOverflowButtonStyle">@style/MyActionButtonOverflow</item>
     </style>
 

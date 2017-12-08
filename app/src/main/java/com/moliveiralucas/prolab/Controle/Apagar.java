@@ -102,10 +102,9 @@ public class Apagar extends Fragment {
         return v;
     }
 
-    private void alertBox(final String parametro, final Integer id) {
+    private void alertBox(final String parametro, final Integer id, final Integer id2) {
         AlertDialog.Builder mAlertBox = new AlertDialog.Builder(getActivity());
-        mAlertBox.setMessage("Apagar")
-                .setTitle("Deseja realmente apagar: " + parametro + "?")
+        mAlertBox.setTitle("Deseja realmente apagar: " + parametro + "?")
                 .setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -120,7 +119,7 @@ public class Apagar extends Fragment {
                                 new AsyncWS().execute();
                                 break;
                             case 3:
-                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/excluirExameLaboratorio/" + Integer.parseInt(parametro) + "_" + id;
+                                WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/excluirExameLaboratorio/" + id + "_" + id2;
                                 new AsyncWS().execute();
                                 break;
                         }
@@ -213,7 +212,7 @@ public class Apagar extends Fragment {
                             lab.setLabID(jsonArray.getJSONObject(i).getInt("labID"));
                             mArrayLaboratorio.add(lab);
                         }
-                        Spinner spinnerLaboratorio = getActivity().findViewById(R.id.spinnerSelectDeleteLab);
+                        Spinner spinnerLaboratorio = getActivity().findViewById(R.id.spinnerDeleteLaboratorio);
                         ArrayAdapter<Laboratorio> mAdapter = new ArrayAdapter<Laboratorio>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArrayLaboratorio);
                         mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         spinnerLaboratorio.setAdapter(mAdapter);
@@ -243,11 +242,11 @@ public class Apagar extends Fragment {
                         spinnerSelectLab.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                             @Override
                             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                                if (spinnerSelectLab.getSelectedItemPosition() > 0){
+                                if (spinnerSelectLab.getSelectedItemPosition() > 0) {
                                     spinnerSelectExame.setEnabled(true);
                                     Laboratorio laboratorio = (Laboratorio) spinnerSelectLab.getSelectedItem();
                                     loadSelectExame(laboratorio.getLabID());
-                                }else{
+                                } else {
                                     String[] vazia = {""};
                                     ArrayAdapter<String> adapterClear = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, vazia);
                                     spinnerSelectExame.setAdapter(adapterClear);
@@ -293,27 +292,27 @@ public class Apagar extends Fragment {
         }
     }
 
-    public void loadExame(){
+    public void loadExame() {
         operacao = 1;
         WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllExames/";
         new AsyncWS().execute();
     }
 
-    public void loadLaboratorio(){
+    public void loadLaboratorio() {
         operacao = 2;
         WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs/";
         new AsyncWS().execute();
     }
 
-    public void loadSelectLab(){
+    public void loadSelectLab() {
         operacao = 3;
         WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs/";
         new AsyncWS().execute();
     }
 
-    public void loadSelectExame(Integer labID){
+    public void loadSelectExame(Integer labID) {
         operacao = 4;
-        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabExame/"+labID;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabExame/" + labID;
         new AsyncWS().execute();
     }
 
@@ -341,19 +340,19 @@ public class Apagar extends Fragment {
                     case 1:
                         Spinner spinnerExame = getActivity().findViewById(R.id.spinnerDeleteExame);
                         Exame exame = (Exame) spinnerExame.getSelectedItem();
-                        alertBox(exame.getExame(), exame.getExameID());
+                        alertBox(exame.getExame(), exame.getExameID(), null);
                         break;
                     case 2:
                         Spinner spinnerLaboratorio = getActivity().findViewById(R.id.spinnerDeleteLaboratorio);
                         Laboratorio lab = (Laboratorio) spinnerLaboratorio.getSelectedItem();
-                        alertBox(lab.getLaboratorio(), lab.getLabID());
+                        alertBox(lab.getLaboratorio(), lab.getLabID(), null);
                         break;
                     case 3:
                         Spinner spinnerSelectLab = getActivity().findViewById(R.id.spinnerSelectDeleteLab);
                         Spinner spinnerSelectExame = getActivity().findViewById(R.id.spinnerSelectDeleteExame);
                         Laboratorio laboratorio = (Laboratorio) spinnerSelectLab.getSelectedItem();
                         Exame ex = (Exame) spinnerSelectExame.getSelectedItem();
-                        alertBox("" + laboratorio.getLabID(), ex.getExameID());
+                        alertBox(laboratorio.getLaboratorio(), laboratorio.getLabID(), ex.getExameID());
                         break;
                 }
             }
