@@ -28,14 +28,10 @@
             android:layout_height="wrap_content"
             android:text="@string/lblExame" />
 
-        <EditText
-            android:id="@+id/txtExame"
+        <Spinner
+            android:id="@+id/spinnerDeleteExame"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/hintExame"
-            android:inputType="textPersonName"
-            android:textSize="15sp" />
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
@@ -52,14 +48,10 @@
             android:layout_height="wrap_content"
             android:text="@string/lblLaboratorio" />
 
-        <EditText
-            android:id="@+id/txtLaboratorio"
+        <Spinner
+            android:id="@+id/spinnerDeleteLaboratorio"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/hintLaboratorio"
-            android:inputType="textPersonName"
-            android:textSize="15sp" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
@@ -76,7 +68,7 @@
             android:text="@string/lblSelectLab" />
 
         <Spinner
-            android:id="@+id/spinnerSelectLab"
+            android:id="@+id/spinnerSelectDeleteLab"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -87,7 +79,7 @@
             android:text="@string/lblSelectExame" />
 
         <Spinner
-            android:id="@+id/spinnerSelectExame"
+            android:id="@+id/spinnerSelectDeleteExame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -99,14 +91,14 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnEnviar"
+            android:id="@+id/btnEnviarDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/btnEnviar" />
 
         <Button
-            android:id="@+id/btnCancelar"
+            android:id="@+id/btnCancelarDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
