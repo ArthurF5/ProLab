@@ -73,16 +73,19 @@ public class Apagar extends Fragment {
                         apagarExame.setVisibility(View.VISIBLE);
                         apagarExameLab.setVisibility(View.GONE);
                         apagarLaboratorio.setVisibility(View.GONE);
+                        loadExame();
                         break;
                     case 2:
                         apagarExame.setVisibility(View.GONE);
                         apagarExameLab.setVisibility(View.GONE);
                         apagarLaboratorio.setVisibility(View.VISIBLE);
+                        loadLaboratorio();
                         break;
                     case 3:
                         apagarExame.setVisibility(View.GONE);
                         apagarExameLab.setVisibility(View.VISIBLE);
                         apagarLaboratorio.setVisibility(View.GONE);
+                        loadSelectLab();
                         break;
                 }
             }
@@ -177,19 +180,141 @@ public class Apagar extends Fragment {
                     }
                     break;
                 case 1:
-
+                    ArrayList<Exame> mArrayExame = new ArrayList<Exame>();
+                    Exame mExame = new Exame();
+                    mExame.setExame("Selecione um Exame");
+                    mArrayExame.add(mExame);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            mExame = new Exame();
+                            mExame.setExame(jsonArray.getJSONObject(i).getString("exame"));
+                            mExame.setExameID(jsonArray.getJSONObject(i).getInt("exameID"));
+                            mArrayExame.add(mExame);
+                        }
+                        Spinner spinnerExame = getActivity().findViewById(R.id.spinnerDeleteExame);
+                        ArrayAdapter<Exame> mAdapter = new ArrayAdapter<Exame>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArrayExame);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerExame.setAdapter(mAdapter);
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
                     break;
                 case 2:
-
+                    ArrayList<Laboratorio> mArrayLaboratorio = new ArrayList<Laboratorio>();
+                    Laboratorio lab = new Laboratorio();
+                    lab.setLaboratorio("Selecione um laboratorio");
+                    mArrayLaboratorio.add(lab);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            lab = new Laboratorio();
+                            lab.setLaboratorio(jsonArray.getJSONObject(i).getString("laboratorio"));
+                            lab.setLabID(jsonArray.getJSONObject(i).getInt("labID"));
+                            mArrayLaboratorio.add(lab);
+                        }
+                        Spinner spinnerLaboratorio = getActivity().findViewById(R.id.spinnerSelectDeleteLab);
+                        ArrayAdapter<Laboratorio> mAdapter = new ArrayAdapter<Laboratorio>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArrayLaboratorio);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerLaboratorio.setAdapter(mAdapter);
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
                     break;
                 case 3:
+                    final Spinner spinnerSelectLab = getActivity().findViewById(R.id.spinnerSelectDeleteLab);
+                    final Spinner spinnerSelectExame = getActivity().findViewById(R.id.spinnerSelectDeleteExame);
+                    ArrayList<Laboratorio> mArraySelectLaboratorio = new ArrayList<Laboratorio>();
+                    Laboratorio selectLab = new Laboratorio();
+                    selectLab.setLaboratorio("Selecione um laboratório");
+                    mArraySelectLaboratorio.add(selectLab);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            selectLab = new Laboratorio();
+                            selectLab.setLaboratorio(jsonArray.getJSONObject(i).getString("laboratorio"));
+                            selectLab.setLabID(jsonArray.getJSONObject(i).getInt("labID"));
+                            mArraySelectLaboratorio.add(selectLab);
+                        }
+                        ArrayAdapter<Laboratorio> mAdapter = new ArrayAdapter<Laboratorio>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArraySelectLaboratorio);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerSelectLab.setAdapter(mAdapter);
+                        spinnerSelectExame.setEnabled(false);
+                        spinnerSelectLab.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                if (spinnerSelectLab.getSelectedItemPosition() > 0){
+                                    spinnerSelectExame.setEnabled(true);
+                                    Laboratorio laboratorio = (Laboratorio) spinnerSelectLab.getSelectedItem();
+                                    loadSelectExame(laboratorio.getLabID());
+                                }else{
+                                    String[] vazia = {""};
+                                    ArrayAdapter<String> adapterClear = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, vazia);
+                                    spinnerSelectExame.setAdapter(adapterClear);
+                                    spinnerSelectExame.setEnabled(false);
+                                }
+                            }
 
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView) {
+
+                            }
+                        });
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
+
+                    break;
+                case 4:
+                    ArrayList<Exame> mArraySelectExame = new ArrayList<Exame>();
+                    Exame mSelectExame = new Exame();
+                    mSelectExame.setExame("Selecione um Exame");
+                    mArraySelectExame.add(mSelectExame);
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            mSelectExame = new Exame();
+                            mSelectExame.setExame(jsonArray.getJSONObject(i).getString("exame"));
+                            mSelectExame.setExameID(jsonArray.getJSONObject(i).getInt("exameID"));
+                            mArraySelectExame.add(mSelectExame);
+                        }
+                        Spinner spinnerExame = getActivity().findViewById(R.id.spinnerDeleteExame);
+                        ArrayAdapter<Exame> mAdapter = new ArrayAdapter<Exame>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArraySelectExame);
+                        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerExame.setAdapter(mAdapter);
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
                     break;
                 default:
                     Toast.makeText(getActivity(), "Operação Inválida", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
+    }
+
+    public void loadExame(){
+        operacao = 1;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchAllExames/";
+        new AsyncWS().execute();
+    }
+
+    public void loadLaboratorio(){
+        operacao = 2;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs/";
+        new AsyncWS().execute();
+    }
+
+    public void loadSelectLab(){
+        operacao = 3;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabs/";
+        new AsyncWS().execute();
+    }
+
+    public void loadSelectExame(Integer labID){
+        operacao = 4;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabExame/"+labID;
+        new AsyncWS().execute();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -210,6 +335,9 @@ public class Apagar extends Fragment {
             @Override
             public void onClick(View view) {
                 switch (apagar) {
+                    case 0:
+                        Toast.makeText(getActivity(), "Selecione o assunto", Toast.LENGTH_SHORT).show();
+                        break;
                     case 1:
                         Spinner spinnerExame = getActivity().findViewById(R.id.spinnerDeleteExame);
                         Exame exame = (Exame) spinnerExame.getSelectedItem();
