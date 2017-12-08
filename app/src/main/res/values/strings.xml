@@ -63,5 +63,6 @@
     <string name="usr">Informe seu Usuario</string>
     <string name="txtValor">Insira o valor do exame</string>
     <string name="lblValor">Valor:</string>
+    <string name="lblUf">UF</string>
 
 </resources>

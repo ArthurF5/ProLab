@@ -56,7 +56,6 @@ public class Cadastro extends Fragment {
         final View v = inflater.inflate(R.layout.cadastro, container, false);
         final Spinner spinnerTipoCadastro = v.findViewById(R.id.spinnerTipoCadastro);
 
-
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, tipoCadastro);
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinnerTipoCadastro.setAdapter(adapter);
