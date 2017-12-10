@@ -22,6 +22,7 @@ import com.moliveiralucas.prolab.R;
 import com.moliveiralucas.prolab.model.Cidade;
 import com.moliveiralucas.prolab.model.Estado;
 import com.moliveiralucas.prolab.model.Exame;
+import com.moliveiralucas.prolab.model.Laboratorio;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -89,6 +90,12 @@ public class BuscaExames extends Fragment {
         new AsyncWS().execute();
     }
 
+    private void loadListaLaboratorios(Integer cidadeId) {
+        operacao = 0;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/SearchLabPorCidade/" + cidadeId;
+        new AsyncWS().execute();
+    }
+
     private class AsyncWS extends AsyncTask<Void, Void, String> {
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -108,7 +115,17 @@ public class BuscaExames extends Fragment {
         protected void onPostExecute(String s) {
             switch (operacao) {
                 case 0: //Popular ListView
-
+                    ListView mListView = getActivity().findViewById(R.id.listLaboratorio);
+                    Laboratorio lab;
+                    try {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (Integer i = 0; i < jsonArray.length(); i++) {
+                            lab = new Laboratorio();
+                            lab.setLaboratorio(jsonArray.getJSONObject(i).getString("laboratorio"));
+                        }
+                    } catch (JSONException e) {
+                        Log.v("JSONArray ERROR: ", e.getMessage());
+                    }
                     break;
                 case 1: //Load Exame
                     final Spinner spinnerExame = getActivity().findViewById(R.id.spinnerSearchExame);
@@ -155,7 +172,6 @@ public class BuscaExames extends Fragment {
                     }
                     break;
                 case 2: //Load Cidades
-                    final Spinner spinnerCidade = getActivity().findViewById(R.id.spinnerSearchCidade);
                     ArrayList<Cidade> mArrayCidade = new ArrayList<Cidade>();
                     Cidade cidade = new Cidade();
                     cidade.setCidade("Selecione uma Cidade");
@@ -168,6 +184,7 @@ public class BuscaExames extends Fragment {
                             cidade.setCidadeID(jsonArray.getJSONObject(i).getInt("cidadeID"));
                             mArrayCidade.add(cidade);
                         }
+                        final Spinner spinnerCidade = getActivity().findViewById(R.id.spinnerSearchCidade);
                         ArrayAdapter<Cidade> mAdapterCidade = new ArrayAdapter<Cidade>(getActivity(), android.R.layout.simple_spinner_dropdown_item, mArrayCidade);
                         mAdapterCidade.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         spinnerCidade.setAdapter(mAdapterCidade);
@@ -175,9 +192,8 @@ public class BuscaExames extends Fragment {
                             @Override
                             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                                 if (spinnerCidade.getSelectedItemPosition() > 0) {
-
-                                } else {
-
+                                    Cidade cid = (Cidade) spinnerCidade.getSelectedItem();
+                                    loadListaLaboratorios(cid.getCidadeID());
                                 }
                             }
 
@@ -191,7 +207,7 @@ public class BuscaExames extends Fragment {
                     }
                     break;
                 case 3:
-                    final Spinner spinnerUF = getActivity().findViewById(R.id.spinnerSearchCidade);
+                    final Spinner spinnerUF = getActivity().findViewById(R.id.spinnerSearchUF);
                     ArrayList<Estado> mArrayUF = new ArrayList<Estado>();
                     Estado uf = new Estado();
                     uf.setUf("Selecione um Estado");

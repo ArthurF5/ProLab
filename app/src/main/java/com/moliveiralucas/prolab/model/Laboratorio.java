@@ -5,8 +5,24 @@ import java.util.ArrayList;
 public class Laboratorio {
 	private Integer labID;
 	private String laboratorio;
-	private ArrayList<Endereco> endereco;
-	
+    private String mEndereco;
+
+    public Laboratorio(String laboratorio, String endereco) {
+
+    }
+
+    public Laboratorio(){
+
+    }
+
+    public String getmEndereco() {
+        return mEndereco;
+    }
+
+    public void setmEndereco(String mEndereco) {
+        this.mEndereco = mEndereco;
+    }
+
 	public Integer getLabID() {
 		return labID;
 	}
@@ -18,12 +34,6 @@ public class Laboratorio {
 	}
 	public void setLaboratorio(String laboratorio) {
 		this.laboratorio = laboratorio;
-	}
-	public ArrayList<Endereco> getEndereco() {
-		return endereco;
-	}
-	public void setEndereco(ArrayList<Endereco> endereco) {
-		this.endereco = endereco;
 	}
 
 	@Override
