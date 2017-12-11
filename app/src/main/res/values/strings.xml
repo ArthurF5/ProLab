@@ -64,5 +64,7 @@
     <string name="txtValor">Insira o valor do exame</string>
     <string name="lblValor">Valor:</string>
     <string name="lblUf">UF</string>
+    <string name="txtPreferenciaEnd">Informe o endereço de sua residencia</string>
+    <string name="btnSalvar">Salvar</string>
 
 </resources>
