@@ -1,12 +1,21 @@
 package com.moliveiralucas.prolab.Controle;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,11 +27,12 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.moliveiralucas.prolab.R;
 import com.moliveiralucas.prolab.model.Cidade;
 import com.moliveiralucas.prolab.model.Estado;
 import com.moliveiralucas.prolab.model.Exame;
-import com.moliveiralucas.prolab.model.Laboratorio;
+import com.moliveiralucas.prolab.model.Filial;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,15 +42,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class BuscaExames extends Fragment {
 
     private Button btnBuscar;
     private Button btnMostrarMapa;
-    private ListView lvLaboratorios;
     private String WS_URL;
     private String json;
     private Integer operacao;
+    private Double latPoint, lngPoint;
+    private static final int maxResult = 1;
 
     DataPassListener mCallback;
 
@@ -116,13 +129,39 @@ public class BuscaExames extends Fragment {
             switch (operacao) {
                 case 0: //Popular ListView
                     ListView mListView = getActivity().findViewById(R.id.listLaboratorio);
-                    Laboratorio lab;
+
+                    pedirPermissoes();
+
+                    Spinner spinnerCity = getActivity().findViewById(R.id.spinnerSearchCidade);
+                    Spinner spinnerEstado = getActivity().findViewById(R.id.spinnerSearchCidade);
+                    Cidade mCidade = (Cidade) spinnerCity.getSelectedItem();
+                    Estado mUF = (Estado) spinnerEstado.getSelectedItem();
+
+                    ArrayList<Filial> mArrayFilial = new ArrayList<Filial>();
+                    Filial mFilial;
+
+                    Location firstLocation = new Location("");
+                    firstLocation.setLatitude(latPoint);
+                    firstLocation.setLongitude(lngPoint);
+
                     try {
                         JSONArray jsonArray = new JSONArray(json);
                         for (Integer i = 0; i < jsonArray.length(); i++) {
-                            lab = new Laboratorio();
-                            lab.setLaboratorio(jsonArray.getJSONObject(i).getString("laboratorio"));
+                            mFilial = new Filial();
+                            mFilial.setmLab(jsonArray.getJSONObject(i).getString("laboratorio"));
+                            mFilial.setmEnd(jsonArray.getJSONObject(i).getString("rua") + " " + mCidade.getCidade() + "-" + mUF.getUf());
+
+                            //Calcula a distancia entre o ponto atual e o endereço
+                            Location lastlocation = new Location("");
+                            lastlocation.setLatitude(reverseGeocoding(getActivity(), mFilial.getmEnd()).latitude);
+                            lastlocation.setLongitude(reverseGeocoding(getActivity(), mFilial.getmEnd()).longitude);
+                            float distanceMeters = firstLocation.distanceTo(lastlocation) / 1000;
+                            mFilial.setmDistancia(distanceMeters);
+
+                            mArrayFilial.add(mFilial);
                         }
+                        FilialListAdapter adapter = new FilialListAdapter(getActivity(), R.layout.adapter_view_layout, mArrayFilial);
+                        mListView.setAdapter(adapter);
                     } catch (JSONException e) {
                         Log.v("JSONArray ERROR: ", e.getMessage());
                     }
@@ -253,6 +292,68 @@ public class BuscaExames extends Fragment {
                     break;
             }
         }
+    }
+
+    private void pedirPermissoes() {
+        if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+        } else {
+            getLocation();
+        }
+    }
+
+    public void getLocation() {
+        try {
+            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            LocationListener locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    latPoint = location.getLatitude();
+                    lngPoint = location.getLongitude();
+                }
+
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
+                }
+
+                @Override
+                public void onProviderEnabled(String s) {
+                }
+
+                @Override
+                public void onProviderDisabled(String s) {
+                }
+            };
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        } catch (SecurityException e) {
+            Log.v("Att Location ERROR:", e.getMessage());
+            Toast.makeText(getActivity(), "Erro ao atualizar a Localização", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static LatLng reverseGeocoding(Context context, String localAddress) {
+        if (!Geocoder.isPresent()) {
+            Log.w("LOG", "MapsActivity Geocoder implementation not present!");
+        }
+        Geocoder geoCoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geoCoder.getFromLocationName(localAddress, maxResult);
+            int tentatives = 0;
+            while (addresses.size() == 0 && (tentatives < 10)) {
+                addresses = geoCoder.getFromLocationName("", 1);
+                tentatives++;
+            }
+            if (addresses.size() > 0) {
+                Log.d("LOG", "Reverse Geocoding : LocationName: " + localAddress + " Latitude: " + addresses.get(0).getLatitude() + " Longitude: " + addresses.get(0).getLongitude());
+                return new LatLng(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
+            } else {
+                Log.d("LOG", "Algo deu errado");
+            }
+        } catch (IOException e) {
+            Log.d(BuscaExames.class.getName(), "Não foi possivel encontrar LatLng do endereço informado: " + localAddress);
+
+        }
+        return null;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)

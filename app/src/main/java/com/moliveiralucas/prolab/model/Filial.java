@@ -7,11 +7,7 @@ package com.moliveiralucas.prolab.model;
 public class Filial {
     private String mLab;
     private String mEnd;
-    private Double mDistancia;
-
-    public Filial(String laboratorio, String endereco, Double distancia) {
-
-    }
+    private Float mDistancia;
 
     public String getmLab() {
         return mLab;
@@ -29,11 +25,11 @@ public class Filial {
         this.mEnd = mEnd;
     }
 
-    public Double getmDistancia(){
+    public Float getmDistancia(){
         return mDistancia;
     }
 
-    public void setmDistancia(Double mDistancia){
+    public void setmDistancia(float mDistancia){
         this.mDistancia = mDistancia;
     }
 }
