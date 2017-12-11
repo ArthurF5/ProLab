@@ -52,8 +52,9 @@ public class BuscaExames extends Fragment {
     private String WS_URL;
     private String json;
     private Integer operacao;
-    private Double latPoint, lngPoint;
     private static final int maxResult = 1;
+    private String laboratorio;
+    Location firstLocation;
 
     DataPassListener mCallback;
 
@@ -76,12 +77,9 @@ public class BuscaExames extends Fragment {
         View v = inflater.inflate(R.layout.busca_exames, container, false);
 
         loadExame();
-
         btnBuscar = v.findViewById(R.id.btnBuscarLab);
-        btnBuscar.setOnClickListener(buscarLaboratorios());
+        btnBuscar.setEnabled(false);
 
-        btnMostrarMapa = v.findViewById(R.id.btnMostrarNoMapa);
-        btnMostrarMapa.setOnClickListener(exibirNoMapa());
         return v;
     }
 
@@ -109,6 +107,12 @@ public class BuscaExames extends Fragment {
         new AsyncWS().execute();
     }
 
+    private void labPorId(Integer labID) {
+        operacao = 4;
+        WS_URL = "http://10.42.0.1:8080/ProLabWEBApp/service/searchLabPorID/" + labID;
+        new AsyncWS().execute();
+    }
+
     private class AsyncWS extends AsyncTask<Void, Void, String> {
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -128,43 +132,50 @@ public class BuscaExames extends Fragment {
         protected void onPostExecute(String s) {
             switch (operacao) {
                 case 0: //Popular ListView
-                    ListView mListView = getActivity().findViewById(R.id.listLaboratorio);
-
-                    pedirPermissoes();
+                    final ListView mListView = getActivity().findViewById(R.id.listLaboratorio);
 
                     Spinner spinnerCity = getActivity().findViewById(R.id.spinnerSearchCidade);
-                    Spinner spinnerEstado = getActivity().findViewById(R.id.spinnerSearchCidade);
+                    Spinner spinnerEstado = getActivity().findViewById(R.id.spinnerSearchUF);
                     Cidade mCidade = (Cidade) spinnerCity.getSelectedItem();
                     Estado mUF = (Estado) spinnerEstado.getSelectedItem();
 
                     ArrayList<Filial> mArrayFilial = new ArrayList<Filial>();
                     Filial mFilial;
-
-                    Location firstLocation = new Location("");
-                    firstLocation.setLatitude(latPoint);
-                    firstLocation.setLongitude(lngPoint);
-
                     try {
                         JSONArray jsonArray = new JSONArray(json);
                         for (Integer i = 0; i < jsonArray.length(); i++) {
-                            mFilial = new Filial();
-                            mFilial.setmLab(jsonArray.getJSONObject(i).getString("laboratorio"));
-                            mFilial.setmEnd(jsonArray.getJSONObject(i).getString("rua") + " " + mCidade.getCidade() + "-" + mUF.getUf());
+                            labPorId(jsonArray.getJSONObject(i).getInt("labID"));
 
-                            //Calcula a distancia entre o ponto atual e o endereço
-                            Location lastlocation = new Location("");
-                            lastlocation.setLatitude(reverseGeocoding(getActivity(), mFilial.getmEnd()).latitude);
-                            lastlocation.setLongitude(reverseGeocoding(getActivity(), mFilial.getmEnd()).longitude);
-                            float distanceMeters = firstLocation.distanceTo(lastlocation) / 1000;
+                            mFilial = new Filial();
+                            mFilial.setmLab(laboratorio);
+                            mFilial.setmEnd(jsonArray.getJSONObject(i).getString("logradouro") + ", " + mCidade.getCidade() + "-" + mUF.getUf());
+
+                            //Calcula a distancia entre o ponto atual e o endereço do laboratorio
+                            Location labLocation = new Location("");
+                            labLocation.setLatitude(reverseGeocoding(getActivity(), mFilial.getmEnd()).latitude);
+                            labLocation.setLongitude(reverseGeocoding(getActivity(), mFilial.getmEnd()).longitude);
+                            float distanceMeters = firstLocation.distanceTo(labLocation);
                             mFilial.setmDistancia(distanceMeters);
 
                             mArrayFilial.add(mFilial);
                         }
                         FilialListAdapter adapter = new FilialListAdapter(getActivity(), R.layout.adapter_view_layout, mArrayFilial);
                         mListView.setAdapter(adapter);
+                        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                Filial filial = (Filial) adapterView.getItemAtPosition(i);
+                                btnMostrarMapa = getActivity().findViewById(R.id.btnMostrarNoMapa);
+                                btnMostrarMapa.setEnabled(true);
+                                btnMostrarMapa.setOnClickListener(exibirNoMapa(filial.getmEnd()));
+                            }
+                        });
                     } catch (JSONException e) {
                         Log.v("JSONArray ERROR: ", e.getMessage());
+                    } catch (SecurityException e) {
+                        Log.v("Att Location ERROR:", e.getMessage());
                     }
+
                     break;
                 case 1: //Load Exame
                     final Spinner spinnerExame = getActivity().findViewById(R.id.spinnerSearchExame);
@@ -203,7 +214,6 @@ public class BuscaExames extends Fragment {
 
                             @Override
                             public void onNothingSelected(AdapterView<?> adapterView) {
-
                             }
                         });
                     } catch (JSONException e) {
@@ -230,9 +240,12 @@ public class BuscaExames extends Fragment {
                         spinnerCidade.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                             @Override
                             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                btnBuscar = getActivity().findViewById(R.id.btnBuscarLab);
                                 if (spinnerCidade.getSelectedItemPosition() > 0) {
-                                    Cidade cid = (Cidade) spinnerCidade.getSelectedItem();
-                                    loadListaLaboratorios(cid.getCidadeID());
+                                    btnBuscar.setEnabled(true);
+                                    btnBuscar.setOnClickListener(buscarLaboratorios());
+                                } else {
+                                    btnBuscar.setEnabled(false);
                                 }
                             }
 
@@ -280,54 +293,19 @@ public class BuscaExames extends Fragment {
 
                             @Override
                             public void onNothingSelected(AdapterView<?> adapterView) {
-
                             }
                         });
                     } catch (JSONException e) {
                         Log.v("JSONArray ERROR: ", e.getMessage());
                     }
                     break;
+                case 4:
+                    laboratorio = json.toUpperCase();
+                    break;
                 default:
                     Toast.makeText(getActivity(), "Operação Inválida", Toast.LENGTH_SHORT).show();
                     break;
             }
-        }
-    }
-
-    private void pedirPermissoes() {
-        if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-        } else {
-            getLocation();
-        }
-    }
-
-    public void getLocation() {
-        try {
-            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            LocationListener locationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    latPoint = location.getLatitude();
-                    lngPoint = location.getLongitude();
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-                }
-            };
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-        } catch (SecurityException e) {
-            Log.v("Att Location ERROR:", e.getMessage());
-            Toast.makeText(getActivity(), "Erro ao atualizar a Localização", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -369,11 +347,11 @@ public class BuscaExames extends Fragment {
         }
     }
 
-    private View.OnClickListener exibirNoMapa() {
+    private View.OnClickListener exibirNoMapa(final String endereco) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCallback.passAddress("Goiânia - GO");
+                mCallback.passAddress(endereco);
             }
         };
     }
@@ -382,8 +360,67 @@ public class BuscaExames extends Fragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnMostrarMapa.setEnabled(true);
+                pedirPermissoes();
             }
         };
+    }
+
+    private void pedirPermissoes() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+        } else {
+            configurarServico();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    configurarServico();
+                } else {
+                    Toast.makeText(getActivity(), "Não vai funcionar!!!", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
+    public void configurarServico() {
+        try {
+            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            LocationListener locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    firstLocation = new Location("");
+                    firstLocation.setLatitude(location.getLatitude());
+                    firstLocation.setLongitude(location.getLongitude());
+                    Log.v("Lat: ", String.valueOf(firstLocation.getLatitude()));
+                    Log.v("Lng: ", String.valueOf(firstLocation.getLongitude()));
+                    Spinner spinnerCidade = getActivity().findViewById(R.id.spinnerSearchCidade);
+                    Cidade cid = (Cidade) spinnerCidade.getSelectedItem();
+                    loadListaLaboratorios(cid.getCidadeID());
+                }
+
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
+                }
+
+                @Override
+                public void onProviderEnabled(String s) {
+                }
+
+                @Override
+                public void onProviderDisabled(String s) {
+                }
+            };
+
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+        } catch (SecurityException e) {
+            Toast.makeText(getActivity(), "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -17,7 +17,7 @@ public class FilialListAdapter extends ArrayAdapter<Filial> {
     private Context mContext;
     private Integer mResource;
 
-    public FilialListAdapter(Context context, int resource, ArrayList<Filial> objects){
+    public FilialListAdapter(Context context, int resource, ArrayList<Filial> objects) {
         super(context, resource, objects);
         this.mContext = context;
         this.mResource = resource;
@@ -39,8 +39,14 @@ public class FilialListAdapter extends ArrayAdapter<Filial> {
 
         txtLaboratorio.setText(laboratorio);
         txtEndereco.setText(endereco);
-        txtDistancia.setText(distancia.toString());
-        return super.getView(position, convertView, parent);
+        String unidade;
+        if (distancia > 1000) {
+            unidade = " km";
+        } else {
+            unidade = " mt";
+        }
+        txtDistancia.setText(String.format("%.2f ",distancia)+ unidade);
+        return convertView;
     }
 
 }

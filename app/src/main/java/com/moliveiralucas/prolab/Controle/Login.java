@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +17,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.moliveiralucas.prolab.MainActivity;
 import com.moliveiralucas.prolab.R;
 import com.moliveiralucas.prolab.model.Usuario;
 
@@ -119,7 +117,7 @@ public class Login extends Fragment {
                 Usuario usr = (Usuario) getTranslation(json, Usuario.class);
                 if(!usr.getUsuario().equals("")) {
                     listener.efetuarLogin(usr);
-                    showFragment(new Empety(), "Empety");
+                    showFragment(new Empty(), "Empty");
                 }else{
                     Toast.makeText(getActivity(), "Login ou senha incorretos, tente novamente!", Toast.LENGTH_SHORT).show();
                 }

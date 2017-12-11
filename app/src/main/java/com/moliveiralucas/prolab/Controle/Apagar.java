@@ -2,7 +2,6 @@ package com.moliveiralucas.prolab.Controle;
 
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -17,12 +16,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.android.gms.vision.text.Line;
 import com.moliveiralucas.prolab.R;
 import com.moliveiralucas.prolab.model.Exame;
 import com.moliveiralucas.prolab.model.Laboratorio;
@@ -161,7 +158,7 @@ public class Apagar extends Fragment {
                                 break;
                             case 2:
                                 Toast.makeText(getActivity(), "Operação realizada com Sucesso", Toast.LENGTH_SHORT).show();
-                                showFragment(new Empety(), "Empety");
+                                showFragment(new Empty(), "Empty");
                                 break;
                             case 3:
                                 Toast.makeText(getActivity(), "Objeto Nulo", Toast.LENGTH_SHORT).show();
@@ -363,7 +360,7 @@ public class Apagar extends Fragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showFragment(new Empety(), "Empety");
+                showFragment(new Empty(), "Empty");
             }
         };
     }

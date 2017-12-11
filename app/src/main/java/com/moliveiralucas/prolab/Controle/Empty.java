@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.moliveiralucas.prolab.R;
 
-public class Empety extends Fragment {
+public class Empty extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
